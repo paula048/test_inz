@@ -1,13 +1,22 @@
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
+using System;
+
 
 public class Frog : MonoBehaviour
 {
     private SkinnedMeshRenderer frogRender;
     public Animator frogAnimator;
+    public Material greenColor;
+    public bool isKilled = false;
 
-    void Awake() // Use Awake to initialize components before Start
+    public event Action OnDeath;
+
+
+
+
+    void Awake() // Use Awake to initialize components before Start   -   to jest konieczne aby przy  Intiatiate odwołać się do tego skrypu
     {
         Transform bodyTransform = gameObject.transform.Find("Body");
         if (bodyTransform != null)
@@ -45,6 +54,8 @@ public class Frog : MonoBehaviour
             {
                 Debug.LogError("Child object 'body' not found on the 'Frog' object.");
             }
+
+
     }
 
     void Update()
@@ -54,23 +65,44 @@ public class Frog : MonoBehaviour
 
     public void Death()
     {
-        setColor("green");
-        Debug.Log("You KILL FROG !!!!!!!!!!!!!!!!!!!!");
-        if (frogAnimator != null)
-        {
-            frogAnimator.Play("Kill");
-            Debug.Log("Run TRIGGER");
+        setColor("magenta");
+
+        if(!isKilled){
+
+            if (frogAnimator != null)
+            {
+                frogAnimator.Play("Kill");
+                Debug.Log("Kill Frog");
+                this.isKilled = true;
+
+
+                // Perform death-related actions (e.g., play animation, destroy frog)
+                OnDeath?.Invoke(); // Notify the SystemFrogGenerator
+
+                // Destroy(gameObject); // Destroy the frog after death
+            }
+            else
+            {
+                Debug.LogError("Animator component not found.");
+            }
         }
-        else
-        {
-            Debug.LogError("Animator component not found.");
-        }
+        
     }
+
+
+
+    public void TransformToPrince()
+    {
+        setMaterial(greenColor);
+        Debug.Log("Became Prince Frog");
+       
+    }
+
+
 
     public void DeathAnim()
     {
         setColor("green");
-        Debug.Log("You KILL FROG !!!!!!!!!!!!!!!!!!!!");
     }
 
     public void setColor(string col)
